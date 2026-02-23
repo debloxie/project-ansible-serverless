@@ -1,0 +1,23 @@
+- name: Configure S3 lifecycle rules
+  hosts: local
+  gather_facts: no
+
+  tasks:
+    - name: Apply lifecycle rule to delete reports older than 30 days
+      command: >
+        aws s3api put-bucket-lifecycle-configuration
+        --bucket debo-automation-reports-dev
+        --lifecycle-configuration '{
+          "Rules": [
+            {
+              "ID": "DeleteOldReports",
+              "Prefix": "reports/",
+              "Status": "Enabled",
+              "Expiration": { "Days": 30 }
+            }
+          ]
+        }'
+      register: s3_lifecycle
+
+    - debug:
+        var: s3_lifecycle.stdout

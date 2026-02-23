@@ -1,0 +1,16 @@
+- name: Configure SSM parameters for automation platform
+  hosts: local
+  gather_facts: no
+
+  tasks:
+    - name: Update automation config parameter
+      command: >
+        aws ssm put-parameter
+        --name "/automation/example/config"
+        --type "String"
+        --overwrite
+        --value "updated-from-ansible"
+      register: ssm_update
+
+    - debug:
+        var: ssm_update.stdout

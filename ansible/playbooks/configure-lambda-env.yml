@@ -1,0 +1,30 @@
+- name: Safely update Lambda environment variables without wiping existing ones
+  hosts: local
+  gather_facts: no
+
+  tasks:
+    - name: Get current Lambda environment variables
+      command: >
+        aws lambda get-function-configuration
+        --function-name automation-dev
+        --query 'Environment.Variables'
+        --output json
+      register: current_env
+
+    - name: Merge new variable into existing environment
+      set_fact:
+        merged_env: "{{ current_env.stdout | from_json | combine({'MODE': 'ansible-managed'}) }}"
+
+    - name: Convert merged environment to JSON
+      set_fact:
+        merged_env_json: "{{ {'Variables': merged_env} | to_json }}"
+
+    - name: Apply merged environment variables (correct AWS JSON format)
+      command: >
+        aws lambda update-function-configuration
+        --function-name automation-dev
+        --environment '{{ merged_env_json }}'
+      register: lambda_update
+
+    - debug:
+        var: lambda_update.stdout
