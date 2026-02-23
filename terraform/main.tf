@@ -48,9 +48,9 @@ resource "aws_iam_role" "lambda_role" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Effect = "Allow"
+      Effect    = "Allow"
       Principal = { Service = "lambda.amazonaws.com" }
-      Action = "sts:AssumeRole"
+      Action    = "sts:AssumeRole"
     }]
   })
 }
@@ -110,7 +110,7 @@ resource "aws_lambda_function" "automation" {
       CONFIG_PARAM  = aws_ssm_parameter.config_example.name
     }
   }
-  
+
   timeout = 10
 }
 
@@ -153,6 +153,6 @@ resource "aws_cloudwatch_metric_alarm" "lambda_errors" {
     FunctionName = aws_lambda_function.automation.function_name
   }
 
-  alarm_description = "Triggers if Lambda has any errors"
+  alarm_description  = "Triggers if Lambda has any errors"
   treat_missing_data = "notBreaching"
 }
